@@ -392,7 +392,8 @@ export class TableUtils {
   static isStringType(columnType: string): boolean {
     switch (columnType) {
       case 'java.lang.String':
-        return true;
+      case 'com.illumon.iris.db.tables.utils.UUIDStringMatchable':
+      return true;
       default:
         return false;
     }
@@ -644,7 +645,8 @@ export class TableUtils {
     if (value.startsWith('*')) {
       prefix = '*';
       value = value.substring(1);
-    } else if (value.endsWith('*') && !value.endsWith('\\*')) {
+    }
+    if (value.endsWith('*') && !value.endsWith('\\*')) {
       suffix = '*';
       value = value.substring(0, value.length - 1);
     }
@@ -707,14 +709,26 @@ export class TableUtils {
 
       case '=':
         if (prefix === '*') {
+          if (suffix === '*') {
+            // contains
+            return filter
+            .isNull()
+            .not()
+            .and(
+              filter.invoke(
+                'contains',
+                dh.FilterValue.ofString(`${value}`)
+                )
+                );
+          }
           // Ends with
           return filter
             .isNull()
             .not()
             .and(
               filter.invoke(
-                'matches',
-                dh.FilterValue.ofString(`(?s)(?i).*\\Q${value}\\E$`)
+                'endsWith',
+                dh.FilterValue.ofString(`${value}`)
               )
             );
         }
@@ -725,8 +739,8 @@ export class TableUtils {
             .not()
             .and(
               filter.invoke(
-                'matches',
-                dh.FilterValue.ofString(`(?s)(?i)^\\Q${value}\\E.*`)
+                'startsWith',
+                dh.FilterValue.ofString(`${value}`)
               )
             );
         }
@@ -1378,8 +1392,8 @@ export class TableUtils {
           .not()
           .and(
             filter.invoke(
-              'matches',
-              dh.FilterValue.ofString(`(?s)(?i).*\\Q${value}\\E.*`)
+              'contains',
+              dh.FilterValue.ofString(`${value}`)
             )
           );
       case FilterType.notContains:
@@ -1388,9 +1402,9 @@ export class TableUtils {
           .or(
             filter
               .invoke(
-                'matches',
-                dh.FilterValue.ofString(`(?s)(?i).*\\Q${value}\\E.*`)
-              )
+                'contains',
+                dh.FilterValue.ofString(`${value}`)
+                )
               .not()
           );
       case FilterType.startsWith:
@@ -1399,8 +1413,8 @@ export class TableUtils {
           .not()
           .and(
             filter.invoke(
-              'matches',
-              dh.FilterValue.ofString(`(?s)(?i)^\\Q${value}\\E.*`)
+              'startsWith',
+              dh.FilterValue.ofString(`${value}`)
             )
           );
       case FilterType.endsWith:
@@ -1409,8 +1423,8 @@ export class TableUtils {
           .not()
           .and(
             filter.invoke(
-              'matches',
-              dh.FilterValue.ofString(`(?s)(?i).*\\Q${value}\\E$`)
+              'endsWith',
+              dh.FilterValue.ofString(`${value}`)
             )
           );
       case FilterType.in:
