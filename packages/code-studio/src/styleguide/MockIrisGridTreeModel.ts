@@ -128,6 +128,10 @@ class MockIrisGridTreeModel
     return this.model.hasExpandableRows;
   }
 
+  get isExpandToDepthAvailable(): boolean {
+    return false;
+  }
+
   get isExpandAllAvailable(): boolean {
     return false;
   }
@@ -143,7 +147,7 @@ class MockIrisGridTreeModel
   setRowExpanded(
     row: ModelIndex,
     isExpanded: boolean,
-    expandDescendants = false
+    expandDescendants: boolean | number = false
   ): void {
     this.model.setRowExpanded(row, isExpanded, expandDescendants);
   }
@@ -151,6 +155,8 @@ class MockIrisGridTreeModel
   expandAll(): void {
     throw new Error('Expand all not implemented.');
   }
+
+  hasExpandToDepth = false;
 
   collapseAll(): void {
     throw new Error('Collapse all not implemented.');

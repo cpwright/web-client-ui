@@ -74,6 +74,10 @@ class MockTreeGridModel extends MockGridModel implements ExpandableGridModel {
     return false;
   }
 
+  get isExpandToDepthAvailable(): boolean {
+    return false;
+  }
+
   get floatingBottomRowCount(): number {
     return 0;
   }
@@ -89,7 +93,7 @@ class MockTreeGridModel extends MockGridModel implements ExpandableGridModel {
   setRowExpanded(
     row: ModelIndex,
     isExpanded: boolean,
-    expandDescendants = false
+    expandDescendants: boolean | number = false
   ): void {
     const { key, offsetRow } = this.getCachedModelRowOffset(this.children, row);
 

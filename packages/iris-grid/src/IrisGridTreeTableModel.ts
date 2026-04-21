@@ -404,6 +404,13 @@ class IrisGridTreeTableModel
     return this.table.expandAll !== undefined;
   }
 
+  get isExpandToDepthAvailable(): boolean {
+    return (
+      this.dh.CoreClient.FEATURES !== undefined &&
+      this.dh.CoreClient.FEATURES.treeTableExpandToDepth !== undefined
+    );
+  }
+
   get isChartBuilderAvailable(): boolean {
     return false;
   }
@@ -447,15 +454,37 @@ class IrisGridTreeTableModel
   setRowExpanded(
     y: ModelIndex,
     isExpanded: boolean,
-    expandDescendants = false
+    expandDescendants?: number | boolean
   ): void {
-    if (this.isExpandAllAvailable) {
-      this.table.setExpanded(y, isExpanded, expandDescendants);
+    // Support the interface which allows the third argument to be a boolean
+    // or a number (depth). If a number is provided, treat it as expandDepth.
+    let expandDepth = 0;
+    let expandDesc = expandDescendants as boolean | undefined;
+    if (typeof expandDescendants === 'number') {
+      expandDepth = expandDescendants;
+      expandDesc = false;
+    } else {
+      expandDesc = expandDesc ?? false;
+    }
+
+    log.info('setRowExpanded', y, isExpanded, expandDesc, expandDepth);
+    if (expandDepth > 0) {
+      if (this.isExpandToDepthAvailable) {
+        log.info('Using expandToDepth to set row expanded', y, expandDepth);
+        this.table.setExpanded(y, isExpanded, expandDepth);
+      } else {
+        log.warn(
+          'expandToDepth is not available on this table, falling back to setRowExpanded',
+          this.table
+        );
+        this.table.setExpanded(y, isExpanded);
+      }
+    } else if (this.isExpandAllAvailable) {
+      this.table.setExpanded(y, isExpanded, expandDesc);
     } else {
       this.table.setExpanded(y, isExpanded);
     }
   }
-
   expandAll(): void {
     if (this.table.expandAll != null) {
       this.table.expandAll();

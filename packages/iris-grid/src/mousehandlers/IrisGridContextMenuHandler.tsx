@@ -472,6 +472,31 @@ class IrisGridContextMenuHandler extends GridMouseHandler {
           },
         });
       }
+
+      if (model.isExpandToDepthAvailable === true) {
+        actions.push({
+          title: IrisGridContextMenuHandler.getRowOptionFormatted(
+            'Expand To Depth 2 in',
+            cellText
+          ),
+          group: IrisGridContextMenuHandler.GROUP_EXPAND_COLLAPSE,
+          order: 45,
+          action: () => {
+            model.setRowExpanded(sourceRow, true, 2);
+          },
+        });
+        actions.push({
+          title: IrisGridContextMenuHandler.getRowOptionFormatted(
+            'Expand To Depth 3 in',
+            cellText
+          ),
+          group: IrisGridContextMenuHandler.GROUP_EXPAND_COLLAPSE,
+          order: 46,
+          action: () => {
+            model.setRowExpanded(sourceRow, true, 3);
+          },
+        });
+      }
     }
 
     if (
